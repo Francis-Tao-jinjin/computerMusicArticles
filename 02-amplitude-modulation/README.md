@@ -60,7 +60,7 @@ y = 1/2•Am(cos((fc-fm)t) - cos((fc+fm)t)
 y = (1/2 • (sin(t•frequency•harmonicity) + 1) • M_scale + 1) • sin(t•frequency)
 
 这种方式下，调制信号的频率与载波的频率相关，当 harmonicity 取正整数的时候，得到的声音就含有泛音分量（就是载波频率的整数倍），
-同时调制的程度由 M_scale， M_scale 为 0 则没有调制控制，而调制信号的输出乘1/2再加1是为了避免负数的干扰
+同时调制的程度由 M_scale 控制， M_scale 为 0 则没有调制控制，而调制信号的输出乘1/2再加1是为了避免负数的干扰
 
 最终的效果和具体的实现可以查看 code 目录下的程序，当 harmonicity 的取值较小时，颤音的效果也相对比较明显
 
