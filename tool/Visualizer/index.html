@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+
+<title>Visualizer | Web Audio API</title>
+</head>
+
+<body>
+
+<div id="container">
+
+  <div id="nav">
+  </div>
+
+  <div id="header">
+    <h1>Web Audio API</h1>
+  </div>
+
+
+  <div id="wrapper">
+    <div id="content">
+
+      
+<div class="post">
+  <h2>Visualizer</h2>
+  <p>
+    <p>Using the AnalyserNode and some Canvas 2D visualizations to show both time- and frequency- domain.</p>
+
+  </p>
+  <p>
+    <p><button style="display: block">Play/pause</button>
+<canvas></canvas></p>
+
+<script src="app.js"></script>
+<script>
+var sample = new VisualizerSample();
+document.querySelector('button').addEventListener('click', function() {
+  sample.togglePlayback()
+});
+</script>
+
+  </p>
+</div>
+
+
+    </div>
+
+  </div>
+
+  </body>
+</html>

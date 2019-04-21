@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Web Audio API - Vibrato</title>
+    </head>
+    <body>
+        <center>
+        <h1>Vibrato by means of frequency modulation</h1>
+        
+        <p>Play a tone with vibrato</p>
+        <input type="button" id="StartStop" onclick="buttonHandler()" value="Start">
+        </center>
+        <p>This diagram demonstrates a simple audio graph for implementing a tone with vibrato. One oscillator, called the carrier oscillator, is the one we will listen to. Another oscillator, called the modulator, is not heard directly, but its effect is heard. It's set to a sub-audio frequency that will be heard as a rhythm rather than as a tone. This low-frequency oscillator ("LFO" for short), is used to modulate the frequency of the carrier oscillator up and down at the desired rate. The amplitude of the low-frequency oscillator determines its "depth" of influence, how wide a fluctuation it will cause.
+        </p>
+        <center>
+        <p><img src="http://music.arts.uci.edu/dobrian/s16/music147/examples/webaudio/images/frequencyvibrato.png" width=500 height=300 border=1></p>
+        </center>
+        <p>In this case we're using a center frequency of 880 Hz for the carrier oscillator. For the modulating oscillator we use a frequency of 6 Hz and an amplitude of 20. The modulating oscillator is added to the center frequency constant. This means that as the modulator oscillates it causes a sinusoidal fluctuation of the carrier frequency up as high as 900 Hz and as low as 860 Hz, completing 6 up-down fluctuations per second. This is a relatively modest fluctuation in that region; 20 Hz is only a little more than 2% of 880Hz, causing a pitch variance of about 1/3 of a musical semitone. This is not enough to distract us from the central frequency, but it does give a somewhat human vocal quality to the tone.
+        </p> 
+        <center>
+        <hr>
+        <p>This page was last modified April 7, 2016<br>
+        by Christopher Dobrian, <a href="mailto:dobrian@uci.edu"><i>dobrian@uci.edu</i></a>
+        </p>
+        </center>
+        
+        <script>
+        	// use the onscreen button to start and stop something
+			var isOn = false;
+				function buttonHandler() {
+					if (isOn) {
+						isOn = false;
+						StartStop.value = "Start";
+						stopIt();
+					}
+					else {
+						isOn = true;
+						StartStop.value = "Stop";
+						startIt();
+					}
+				}
+		</script>
+
+        <script>
+        	// Set up the audio graph
+            // Create the audio context
+            var myAudioContext = new AudioContext();
+    		// Create a carrier oscillator in that context
+            var carrierOscillator = myAudioContext.createOscillator();
+            // Set the base frequency of the carrier oscillator
+            carrierOscillator.frequency.value = 880;
+             // Create an amplifier to control gain of carrier oscillator
+            var carrierGain = myAudioContext.createGain();
+            // Set the volume to off initially
+            carrierGain.gain.value = 0;
+			// Connect the carrier oscillator to its gain controller
+			carrierOscillator.connect( carrierGain );
+			// Connect the amplifier to the speakers
+			carrierGain.connect( myAudioContext.destination );
+			// Create a modulator (low frequency) oscillator
+            var modulatorOscillator = myAudioContext.createOscillator();
+            // Set its frequency value to the desired vibrato rate
+            modulatorOscillator.frequency.value = 6;
+           // Create an amplifier to control depth of vibrato
+            var modulatorGain = myAudioContext.createGain();
+            // Set the depth of vibrato
+            modulatorGain.gain.value = 20; // why this value?
+			// Connect the LFO to its gain controller
+			modulatorOscillator.connect( modulatorGain );
+			// Connect the LFO's GainNode to the frequency AudioParam of the carrier
+			modulatorGain.connect( carrierOscillator.frequency );
+			// start the modulator oscillator
+			modulatorOscillator.start();
+			// start the carrier oscillator (silent initially)
+			carrierOscillator.start();
+        </script>
+        
+        <script>
+        	// Functions to start and stop the sound
+          function startIt() {
+            // create a starting point in time for the ramp
+            carrierGain.gain.setValueAtTime( 0.0, myAudioContext.currentTime );
+            // turn the gain volume to -20 dB
+            carrierGain.gain.linearRampToValueAtTime( 0.1, myAudioContext.currentTime+0.1 );
+          }
+          function stopIt() {
+            // create a starting point in time for the ramp
+            carrierGain.gain.setValueAtTime( 0.1, myAudioContext.currentTime );
+            // turn the gain volume off
+            carrierGain.gain.linearRampToValueAtTime( 0., myAudioContext.currentTime+0.1 );
+          }
+        </script>
+    </body>
+</html>
