@@ -36,4 +36,4 @@ $$ø = 2π\int_0^t f(\tau)d\tau$$
 $ø^, = f_c + d*cos(f_m*t)$，正是输入给 Carrier 值
 
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
