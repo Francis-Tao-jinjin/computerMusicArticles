@@ -1,0 +1,40 @@
+<html>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <body>
+
+    $$y = cos(2πf_ct + Ksin(2πf_mt))$$
+    $$y = cos(2πf_ct)cos(Ksin(2πf_mt)) - sin(2πf_ct)sin(Ksin(2πf_mt))$$
+
+    $$e^{ix} = cos(x) + isin(x)$$
+    $$sin(x) = \frac{e^{ix} - e^{-ix}}{2i}$$
+    $$e^{iKsin(2πf_mt)} = cos(Ksin(2πf_mt)) + isin(Ksin(2πf_mt))$$
+  
+    $$e^{iKsin(2πf_mt)} = e^{\frac{K(e^{iθ} - e^{-iθ})}{2}}$$
+    $$e^{iKsin(2πf_mt)} = e^{\frac{Ke^{iθ}}{2}}*e^{\frac{-Ke^{-iθ}}{2}}$$
+    $$cos(Ksin(θ)) + isin(Ksin(θ)) = e^{\frac{Ke^{iθ}}{2}}*e^{\frac{-Ke^{-iθ}}{2}}$$
+    $$e^x = 1 + x + 1/2x^2 + 1/6x^3 + 1/24x^4 +...$$
+    $$e^x = \sum_{n=0}^{+\infty} \frac{1}{n!} x^n$$
+
+    $$e^{\frac{Ke^{iθ}}{2}}*e^{\frac{-Ke^{-iθ}}{2}} = \sum_{m=0}^{+\infty}\frac{1}{m!}(\frac{k}{2})^me^{imθ} * \sum_{n=0}^{+\infty}\frac{-1^n}{n!}(\frac{k}{2})^ne^{-inθ}$$
+    $${  }{  }= \sum_{m=0}^{+\infty}\sum_{n=0}^{+\infty}\frac{-1^n}{n!m!}(\frac{K}{2})^{m+n}e^{i(m-n)θ}$$
+    $$e^{\frac{Ke^{iθ}}{2}}*e^{\frac{-Ke^{-iθ}}{2}} = \sum_{α=-\infty}^{+\infty}\sum_{n=0}^{+\infty}\frac{-1^n}{n!(n+α)!}(\frac{K}{2})^{(α+2n)}e^{i(α)θ}$$
+    $$J_α(K) = \sum_{n=0}^{+\infty}\frac{-1^n}{n!(n+α)!}(\frac{K}{2})^{(α+2n)}$$
+    
+    $$e^{\frac{Ke^{iθ}}{2}}*e^{\frac{-Ke^{-iθ}}{2}} = \sum_{α=-\infty}^{+\infty}J_α(K)e^{i(α)θ}$$
+    $$= J_0(K) + \sum_{α=0}^{+\infty}J_{2α+1}(K)(e^{iαθ}+e^{-iαθ}) + \sum_{α=1}^{+\infty}J_{2α}(K)(e^{iαθ}-e^{-iαθ})$$
+    $$= J_0(K) + 2i\sum_{α=0}^{+\infty}J_{2α+1}(K)sin((2α+1)θ) + 2\sum_{α=1}^{+\infty}J_{2α}(K)cos(2αθ)$$
+    $$e^{iKsin(θ)} = cos(Ksin(θ)) + isin(Ksin(θ))$$
+
+    $$cos(Ksin(θ)) = J_0(K) + \sum_{α=1}^{+\infty}J_{2α}(K)cos(2αθ)$$
+    $$sin(Ksin(θ)) = 2\sum_{α=0}^{+\infty}J_{2α+1}(K)sin((2α+1)θ$$
+    <!-- $$\sum_{i=0}^{+\infty} \frac{1}{i^2}$$ -->
+
+    $$cos(2πf_ct)cos(Ksin(2πf_mt)) = J_0(K)cos(2πf_ct) + \sum_{α=1}^{+\infty}J_{2α}(K)(cos(2π(f_c-2αf_m)t) + cos(2π(f_c+2αf_m)t))$$
+    $$= \sum_{n(even)}^{+\infty}J_{n}(K)(cos(2π(f_c + nf_m)t))$$
+    
+    $$sin(2πf_ct)sin(Ksin(2πf_mt)) = -\sum_{α=1}^{+\infty}J_{2α+1}(K)(cos(2π(f_c+2αf_m)t) - cos(2π(f_c-2αf_m)t))$$
+    $$= -\sum_{n(odd)}^{+\infty}J_{n}(K)(cos(2π(f_c + nf_m)t))$$
+  
+    $$y = cos(2πf_ct + Ksin(2πf_mt)) = \sum_{n=-\infty}^{+\infty}J_n(K)cos(2π(f_c + nf_m)t)$$
+  </body>
+</html>
