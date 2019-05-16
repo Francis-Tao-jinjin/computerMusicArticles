@@ -49,11 +49,11 @@ cancelAndHoldAtTime(cancelTime)
 
 <image src="./assets/linearRampToValueAtTime1.png" width="435px" align=center/>
 
-2：初始值为2，在 currentTime = 3 的时候，先设置 param 线性变化到 1，并且在第 8 秒完成变化。
+2：初始值为2，在 currentTime = 3 的时候，设置 param 线性变化到 1，并且在第 8 秒完成变化。
 
 <image src="./assets/linearRampToValueAtTime2.png" width="435px" align=center/>
 
-3：初始值为2，在 currentTime = 5 的时候，先设置 param 线性变化到 1，并且在第 8 秒完成变化。
+3：初始值为2，在 currentTime = 5 的时候，设置 param 线性变化到 1，并且在第 8 秒完成变化。
 
 <image src="./assets/linearRampToValueAtTime3.png" width="435px" align=center/>
 
@@ -69,7 +69,7 @@ value     变化结束时的值
 startTime 开始变化的时间
 rampTime  变化的时间长度
 ```
-并且在变化开始的时候在 timeline 上添加一个记录点（也就是 setValue 的记录点）。
+并且在变化开始的时候在 timeline 上添加一个记录点（也就是 setValue 类型的记录点）。
 对于上述三个例子中的第一个，时间线上就会有 4 个记录点，其中第二个点和第三个点虽然重合，但是代表的意义是不同的：
 ```js
 {
@@ -97,4 +97,71 @@ rampTime  变化的时间长度
 有这 4 个记录点，就可以完整的表示 param 关于时间的函数了，并且只要知道时间 t，就可以计算出 t 时刻 param 的值，其中涉及到的插值函数会在下文细说。
 
 <b>setTargetAtTime</b>
+
+与前面三种变化方式相比，setTargetAtTime 的作用不那么直观，它的三个参数为 target, startTime, timeConstant。其中 startTime 顾名思义，主要解释一下另两个参数。
+`target`，值得是期望的目标值，听起来好像和其他三种方法中的参数 `value` 没有区别啊，之所以要换一个名字是因为 setTargetAtTime 方法采用以 e 的负指数作为变化率来无限逼近 target 的，说起来挺复杂，下面用图表示这个过程：
+
+
+<image src="./assets/setTargetAtTime.png" width="635px" align=center/>
+
+上图中，v1 是 startTime 时的值， v2 是 target g 是第三个参数 timeConstant，从函数表达式能直接看出，timeConstant 影响了 y 趋近与 target 的速度，它的值越小，上升（下降）的越快，值越大，上升（下降）的越慢，如果将变化的过程用百分比表示，那么每经过一个 timeConstant 的时常，就会朝 target 逼近 63.2%。虽然永远不会达到 target，但是大多数情况下，只要数值十分接就可以了，当时间经过 6 个 timeConstant，变化过程以及完成了 99.75% （1 - e<sup>-6</sup> = 0.9975212478233336），就如上图中时间为 3 时，其实看起来 y 的值以及和 3 无异了。
+
+为了使 param 的值最终能变为 target，不妨在取一个时间长度 T，并在 startTime + T 时刻设置记录点，类型为 setValueAtTime，这里 T 暂时取 6 * timeConstant。
+
+因此，如果用一个新的函数 `targetRampTo(value, rampTime, startTime)` 封装一下，其中的参数 value 对应到原本的 target，rampTime/6 就是 timeConstant。一个 setTargetAtTime 的变化也可以用两个记录点表示：
+```js
+{
+  time: startTime,
+  value: target,
+  timeConstant: timeConstant,
+  type: 'SetTargetAtTime',
+},
+{
+  time: starTime + 6 * timeConstant,
+  value: target,
+  type: 'setValueAtTime'
+},
+```
+
+setValueCurveAtTime，参考 [文档](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setValueCurveAtTime)，它的效果是按照给定的一组数值通过线性插值进行变化，其实就是一连串的 linearRampToValueAtTime。
+
+
+<b>cancelScheduledValues 与 cancelAndHoldAtTime</b>
+这两个方法的作用都是取消先前预定的变化，不过稍微有一些不同，用一个例子说明：
+
+设有一个 GainNode 的 gain 初始值为 1。此时 audioContext.currentTime 为 3，然后执行 
+```js
+const now = audioContext.currentTime;
+gain.linearRampToValueAtTime(3, now + 2);
+gain.cancelScheduledValues(now + 1);
+```
+这里做的事情是首先希望 gain 的值在第三秒时的 1 开始线性的变化到 3，第五秒结束变化，然后又立刻调用 cancelScheduledValues 取消 第四秒之后的变化过程。最终的结果是线性变化不会发生，gain 的值始终为1 。
+如果执行的不是 cancelScheduledValues 而是 cancelAndHoldAtTime，那么在第四秒之前，线性变化依然有效，只是第四秒时停止变化，最终 gain 的值为 2。
+
+在预定的变化还未发生的时候，如果 cancelScheduledValues 的时间与变化有重叠，那么整个预定的变化都会取消。
+
+如果变化已经发生，那么 cancelScheduledValues 和 cancelAndHoldAtTime 的作用是一样的，比如：
+```js
+const now = audioContext.currentTime;
+gain.linearRampToValueAtTime(3, now + 2);
+setTimeout(() => {
+  gain.cancelScheduledValues(audioContext.currentTime);
+}, 1000);
+```
+假设这个例子中的 setTimeout 能及准时的在 1 秒钟后触发，那么最终的结果 gain 的值为 4。
+
+### Interpolate 插值
+
+这里只说明一下 exponentialRampToValueAtTime 和 setTargetAtTime 两个方法会用到的插值函数，
+
+exponentialRampToValueAtTime: y = v2*((v1/v2)^(x))
+
+setTargetAtTime: y = v2 (v1 - v2)*(1 - e^(-x/g))
+
+x 为开始变化后流逝的时间，v1 为初始值，v2 为目标值，g 为 timeConstant。
+
+## conclusion 总结
+原生的 audioParam 使用起来确实有点模糊不清，上文一开始提到的 timeline 其实在 webkit 和 chromium 的中是有功能类似的实现（[查看此处](https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/webaudio/audio_param_timeline.h?dr&g=0&l=43)），可是这些并没有提供 js 接口，如果想在 js 程序中完全的控制 audioParam 的行为，只能再另行构造。
+
+大致的实现可以[查看我的 github](https://github.com/TaoJinjin-Thomas/EasuAL/blob/master/src/core/AutomationTimeline.ts)
 
